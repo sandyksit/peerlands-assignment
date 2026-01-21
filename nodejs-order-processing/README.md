@@ -1,27 +1,21 @@
 # Order Processing System (Node.js)
 
-This repository contains a simple Order Processing System implemented in Node.js (no TypeScript) to satisfy the given requirements.
+This folder contains the Node.js implementation of the Order Processing System.
 
-Quick start
-- Install dependencies: run `npm install` in the project root.
-- Start the app: `npm start` (listens on PORT 3000 by default)
-- Run tests: `npm test` (runs unit + integration smoke test)
+Quick start (PowerShell)
+1. cd /d d:\peerlands-assignment\nodejs-order-processing
+2. npm install
+3. npm start
 
-Design & Notes
-- See `docs/spec.md` and `docs/architecture.md` for API and architecture details.
-- Uses an in-memory store by default. Replace `src/store/inMemoryStore.js` to plug in a database.
-- Background job interval controlled with `JOB_INTERVAL_MS` (ms). Default 300000 (5m). For tests, set to 1000.
+By default the app listens on port 3000. Use `PORT` environment variable to change.
 
-Requirements mapping
-- Create order: POST /orders (done)
-- Retrieve order: GET /orders/:id (done)
-- Update status: PATCH /orders/:id/status (done)
-- Background job: implemented in `src/jobs/scheduler.js` (configurable interval)
-- List orders: GET /orders?status= (done)
-- Cancel order: PATCH /orders/:id/cancel (only allowed in PENDING)
+Run tests
+- `npm test` runs a small integration runner that starts the server and executes basic API checks.
 
-Other implementations
-- A .NET 6 minimal API implementation is available in `dotnet-order-processing`.
+Notes
+- The app uses an in-memory store at `src/store/inMemoryStore.js`.
+- Background job that moves `PENDING` → `PROCESSING` is implemented in `src/jobs/scheduler.js` and is configured with `JOB_INTERVAL_MS` (ms).
 
-Notes about AI usage (for the candidate)
-- Document what AI tools you used and how you validated & corrected outputs.
+Development
+- Keep routes thin and implement business rules in `src/services/orderService.js`.
+

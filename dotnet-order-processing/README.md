@@ -1,8 +1,17 @@
-# .NET Order Processing
+# .NET Order Processing (Refactored)
 
-This is a minimal ASP.NET Core (net6.0) implementation of the Order Processing System.
+This folder contains a professionally-structured ASP.NET Core (net6.0) implementation of the Order Processing System.
 
-Run:
-- dotnet run --project dotnet-order-processing
+Quick start (PowerShell)
+1. cd /d d:\peerlands-assignment\dotnet-order-processing
+2. dotnet build
+3. dotnet run
 
-The API matches the spec in `docs/spec.md` and uses an in-memory ConcurrentDictionary as the store.
+Notes
+- The project is a minimal API wired with Controllers, Services, Repositories, and a hosted background job.
+- Background job interval can be configured via the environment variable `JOB_INTERVAL_MS` (milliseconds). Default is 300000 (5 minutes).
+
+Development
+- Replace `InMemoryOrderRepository` with a DB-backed repository implementing `IOrderRepository` to persist data.
+- Add tests with xUnit and inject a mock `IOrderRepository` to exercise `OrderService` logic.
+
