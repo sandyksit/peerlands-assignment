@@ -1,0 +1,18 @@
+# Build output
+bin/
+obj/
+Properties/launchSettings.json
+
+# Dependencies
+.vs/
+.vscode/
+*.csproj.user
+
+# Environment
+.env
+.env.local
+appsettings.local.json
+
+# OS
+.DS_Store
+Thumbs.db

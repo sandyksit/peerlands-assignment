@@ -10,8 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configuration
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 // DI registrations
 builder.Services.AddSingleton<IOrderRepository, InMemoryOrderRepository>();
@@ -22,8 +20,6 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment()) {
     app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
 
 app.MapControllers();

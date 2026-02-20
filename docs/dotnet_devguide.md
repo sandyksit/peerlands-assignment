@@ -8,6 +8,17 @@ Project structure (cleaned)
 - `Jobs/OrderBackgroundService.cs` - hosted background service
 - `Program.cs` - DI, middleware, swagger
 
+Design patterns used in this project:
+- **Repository Pattern**: Abstract data access via `IOrderRepository`
+- **Dependency Injection**: Register services in `Program.cs`
+- **Service Layer Pattern**: Business logic in `OrderService`
+- **MVC/Controller Pattern**: HTTP handling in `OrdersController`
+- **DTO Pattern**: `OrderCreateDto`, `StatusUpdateDto` for request/response contracts
+- **Hosted Service Pattern**: Background job in `OrderBackgroundService`
+- **Singleton Pattern**: Services and repositories as singletons
+
+See `dotnet_design_patterns.md` for detailed explanation of each pattern.
+
 How to run
 1. dotnet build
 2. dotnet run --project .\dotnet-order-processing

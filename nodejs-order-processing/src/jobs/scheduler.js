@@ -1,25 +1,28 @@
 const OrderService = require('../services/orderService');
+const config = require('../config');
+const logger = require('../utils/logger');
 
 let intervalId = null;
 
 function start() {
   if (intervalId) return;
-  const ms = parseInt(process.env.JOB_INTERVAL_MS || '300000', 10);
+  const ms = config.jobIntervalMs;
   intervalId = setInterval(() => {
     try {
       const updated = OrderService.transitionPendingToProcessing();
-      if (updated.length) console.log(`Job: moved ${updated.length} orders to PROCESSING`);
+      if (updated.length) logger.info(`Job: moved ${updated.length} orders to PROCESSING`);
     } catch (err) {
-      console.error('Job error', err && err.stack);
+      logger.error('Job error', err && err.stack);
     }
   }, ms);
-  console.log(`Background job started, interval ${ms}ms`);
+  logger.info(`Background job started, interval ${ms}ms`);
 }
 
 function stop() {
   if (!intervalId) return;
   clearInterval(intervalId);
   intervalId = null;
+  logger.info('Background job stopped');
 }
 
 module.exports = { start, stop };

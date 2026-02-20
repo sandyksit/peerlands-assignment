@@ -1,7 +1,8 @@
-const app = require('./server');
+const app = require('./app');
+const config = require('./config');
+const logger = require('./utils/logger');
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Order service listening on port ${PORT}`);
+app.listen(config.port, () => {
+  logger.info(`Order service listening on port ${config.port}`);
 });
+

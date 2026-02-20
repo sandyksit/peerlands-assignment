@@ -26,7 +26,7 @@ Order
 - updatedAt: ISO timestamp
 
 ## HTTP API
-Base: `http://localhost:3000`
+Base: `http://localhost:5000`
 
 1) Create order
 - POST /orders
@@ -56,7 +56,7 @@ Base: `http://localhost:3000`
 - 500 Internal Server Error: unexpected
 
 ## Runtime configuration
-- PORT (default 3000)
+- PORT (default 5000)
 - JOB_INTERVAL_MS (default 300000)
 
 ## Notes for implementer

@@ -1,5 +1,6 @@
 const store = require('../store/inMemoryStore');
 const { v4: uuidv4 } = require('uuid');
+const logger = require('../utils/logger');
 
 const VALID_STATUSES = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
 
@@ -30,6 +31,7 @@ const OrderService = {
       updatedAt: new Date().toISOString(),
     };
     store.save(order);
+    logger.info(`Order created: ${order.id}, total: ${total}`);
     return order;
   },
 
@@ -48,6 +50,7 @@ const OrderService = {
     order.status = status;
     order.updatedAt = new Date().toISOString();
     store.update(order);
+    logger.info(`Order ${id} status updated to ${status}`);
     return order;
   },
 
@@ -58,6 +61,7 @@ const OrderService = {
     order.status = 'CANCELLED';
     order.updatedAt = new Date().toISOString();
     store.update(order);
+    logger.info(`Order ${id} cancelled`);
     return order;
   },
 
