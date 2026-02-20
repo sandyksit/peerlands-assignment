@@ -57,4 +57,30 @@ public class OrdersController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpPost("{id}/payments")]
+    public IActionResult AddPayment(string id, [FromBody] PaymentCreateDto dto)
+    {
+        try {
+            var payment = _service.AddPayment(id, dto);
+            return CreatedAtAction(nameof(GetPayments), new { id = id }, payment);
+        } catch (KeyNotFoundException) {
+            return NotFound();
+        } catch (InvalidOperationException ex) {
+            return BadRequest(ex.Message);
+        } catch (ArgumentException ex) {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpGet("{id}/payments")]
+    public IActionResult GetPayments(string id)
+    {
+        try {
+            var payments = _service.GetPayments(id);
+            return Ok(payments);
+        } catch (KeyNotFoundException) {
+            return NotFound();
+        }
+    }
 }

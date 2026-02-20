@@ -19,6 +19,7 @@ public class OrderService : IOrderService
             Id = Guid.NewGuid().ToString(),
             Items = dto.Items,
             Total = dto.Items.Sum(i => i.Price * i.Quantity),
+            TotalPaid = 0,
             Status = "PENDING",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -45,6 +46,7 @@ public class OrderService : IOrderService
     {
         var order = _repo.GetById(id) ?? throw new KeyNotFoundException();
         if (order.Status != "PENDING") throw new InvalidOperationException("only PENDING orders can be cancelled");
+        if (order.TotalPaid > 0) throw new InvalidOperationException("cannot cancel order with existing payments");
         order.Status = "CANCELLED";
         order.UpdatedAt = DateTime.UtcNow;
         _repo.Update(order);
@@ -54,13 +56,54 @@ public class OrderService : IOrderService
     public IEnumerable<Order> TransitionPendingToProcessing()
     {
         var pending = _repo.List("PENDING").ToList();
+        var updated = new List<Order>();
         foreach (var o in pending)
         {
-            o.Status = "PROCESSING";
-            o.UpdatedAt = DateTime.UtcNow;
-            _repo.Update(o);
+            if (o.TotalPaid >= o.Total)
+            {
+                o.Status = "PROCESSING";
+                o.UpdatedAt = DateTime.UtcNow;
+                _repo.Update(o);
+                updated.Add(o);
+            }
         }
-        return pending;
+        return updated;
+    }
+
+    public Payment AddPayment(string orderId, PaymentCreateDto dto)
+    {
+        var order = _repo.GetById(orderId) ?? throw new KeyNotFoundException();
+        if (order.Status != "PENDING") throw new InvalidOperationException("payments can only be made for PENDING orders");
+        if (dto.Amount <= 0) throw new ArgumentException("amount must be a positive number");
+        
+        var remaining = order.Total - order.TotalPaid;
+        if (dto.Amount > remaining) throw new ArgumentException($"overpayment: cannot pay {dto.Amount}, remaining balance is {remaining}");
+        
+        var payment = new Payment
+        {
+            Id = Guid.NewGuid().ToString(),
+            OrderId = orderId,
+            Amount = dto.Amount,
+            PaymentDate = DateTime.UtcNow,
+            PaymentMethod = dto.PaymentMethod ?? "unknown"
+        };
+        
+        // Save payment first
+        var savedPayment = _repo.SavePayment(payment);
+        
+        // Get fresh order reference and update TotalPaid
+        var updatedOrder = _repo.GetById(orderId) ?? throw new KeyNotFoundException();
+        updatedOrder.TotalPaid += dto.Amount;
+        updatedOrder.UpdatedAt = DateTime.UtcNow;
+        _repo.Update(updatedOrder);
+        
+        return savedPayment;
+    }
+
+    public IEnumerable<Payment> GetPayments(string orderId)
+    {
+        var order = _repo.GetById(orderId) ?? throw new KeyNotFoundException();
+        return _repo.GetPayments(orderId);
     }
 
     private void ValidateItems(List<Item> items)

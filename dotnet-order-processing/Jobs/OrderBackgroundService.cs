@@ -23,7 +23,7 @@ public class OrderBackgroundService : BackgroundService
             try
             {
                 var updated = _service.TransitionPendingToProcessing();
-                if (updated.Any()) Console.WriteLine($"Background job: moved {updated.Count()} orders to PROCESSING");
+                if (updated.Any()) Console.WriteLine($"Background job: moved {updated.Count()} orders from PENDING to PROCESSING (payment condition met)");
             }
             catch (Exception ex) { Console.Error.WriteLine(ex); }
 

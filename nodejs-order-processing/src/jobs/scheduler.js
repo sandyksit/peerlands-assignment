@@ -10,7 +10,7 @@ function start() {
   intervalId = setInterval(() => {
     try {
       const updated = OrderService.transitionPendingToProcessing();
-      if (updated.length) logger.info(`Job: moved ${updated.length} orders to PROCESSING`);
+      if (updated.length) logger.info(`Job: moved ${updated.length} orders from PENDING to PROCESSING (payment condition met)`);
     } catch (err) {
       logger.error('Job error', err && err.stack);
     }

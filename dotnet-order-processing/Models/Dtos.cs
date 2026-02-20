@@ -9,3 +9,9 @@ public class StatusUpdateDto
 {
     public string Status { get; set; } = string.Empty;
 }
+
+public class PaymentCreateDto
+{
+    public double Amount { get; set; }
+    public string? PaymentMethod { get; set; }
+}

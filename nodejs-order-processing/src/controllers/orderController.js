@@ -41,4 +41,25 @@ const cancel = (req, res) => {
   }
 };
 
-module.exports = { create, list, get, updateStatus, cancel };
+const addPayment = (req, res) => {
+  try {
+    const { amount, paymentMethod } = req.body;
+    const payment = OrderService.addPayment(req.params.id, amount, paymentMethod);
+    res.status(201).json(payment);
+  } catch (err) {
+    if (err.message === 'not found') return res.status(404).json({ error: 'Order not found' });
+    res.status(400).json({ error: err.message });
+  }
+};
+
+const getPayments = (req, res) => {
+  try {
+    const payments = OrderService.getPayments(req.params.id);
+    res.json(payments);
+  } catch (err) {
+    if (err.message === 'not found') return res.status(404).json({ error: 'Order not found' });
+    res.status(400).json({ error: err.message });
+  }
+};
+
+module.exports = { create, list, get, updateStatus, cancel, addPayment, getPayments };

@@ -26,12 +26,13 @@ const OrderService = {
       id: uuidv4(),
       items,
       total,
+      totalPaid: 0,
       status: 'PENDING',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     store.save(order);
-    logger.info(`Order created: ${order.id}, total: ${total}`);
+    logger.info(`Order created: ${order.id}, total: ${total}, totalPaid: 0`);
     return order;
   },
 
@@ -58,6 +59,7 @@ const OrderService = {
     const order = store.getById(id);
     if (!order) throw new Error('not found');
     if (order.status !== 'PENDING') throw new Error('only PENDING orders can be cancelled');
+    if (order.totalPaid > 0) throw new Error('cannot cancel order with existing payments');
     order.status = 'CANCELLED';
     order.updatedAt = new Date().toISOString();
     store.update(order);
@@ -69,12 +71,46 @@ const OrderService = {
     const pending = store.list('PENDING');
     const updated = [];
     pending.forEach(order => {
-      order.status = 'PROCESSING';
-      order.updatedAt = new Date().toISOString();
-      store.update(order);
-      updated.push(order);
+      if (order.totalPaid >= order.total) {
+        order.status = 'PROCESSING';
+        order.updatedAt = new Date().toISOString();
+        store.update(order);
+        updated.push(order);
+        logger.info(`Order ${order.id} transitioned to PROCESSING (paid: ${order.totalPaid}/${order.total})`);
+      }
     });
     return updated;
+  },
+
+  addPayment(orderId, amount, paymentMethod = 'unknown') {
+    const order = store.getById(orderId);
+    if (!order) throw new Error('not found');
+    if (order.status !== 'PENDING') throw new Error('payments can only be made for PENDING orders');
+    if (typeof amount !== 'number' || amount <= 0) throw new Error('amount must be a positive number');
+    const remaining = order.total - order.totalPaid;
+    if (amount > remaining) throw new Error(`overpayment: cannot pay ${amount}, remaining balance is ${remaining}`);
+    
+    const payment = {
+      id: uuidv4(),
+      orderId,
+      amount,
+      paymentDate: new Date().toISOString(),
+      paymentMethod,
+    };
+    
+    const savedPayment = store.savePayment(payment);
+    order.totalPaid += amount;
+    order.updatedAt = new Date().toISOString();
+    store.update(order);
+    
+    logger.info(`Payment added to order ${orderId}: amount=${amount}, totalPaid=${order.totalPaid}`);
+    return savedPayment;
+  },
+
+  getPayments(orderId) {
+    const order = store.getById(orderId);
+    if (!order) throw new Error('not found');
+    return store.getPayments(orderId);
   }
 };
 

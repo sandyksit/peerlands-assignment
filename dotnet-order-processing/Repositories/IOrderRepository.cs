@@ -8,4 +8,6 @@ public interface IOrderRepository
     Order? GetById(string id);
     void Save(Order order);
     void Update(Order order);
+    Payment SavePayment(Payment payment);
+    IEnumerable<Payment> GetPayments(string orderId);
 }

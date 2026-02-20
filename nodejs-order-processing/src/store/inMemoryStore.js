@@ -1,4 +1,5 @@
 const orders = new Map();
+const payments = new Map();
 
 module.exports = {
   save(order) {
@@ -21,7 +22,20 @@ module.exports = {
     return order;
   },
 
+  savePayment(payment) {
+    if (!payments.has(payment.orderId)) {
+      payments.set(payment.orderId, []);
+    }
+    payments.get(payment.orderId).push(payment);
+    return payment;
+  },
+
+  getPayments(orderId) {
+    return payments.get(orderId) || [];
+  },
+
   clear() {
     orders.clear();
+    payments.clear();
   }
 };

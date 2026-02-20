@@ -7,6 +7,7 @@ namespace DotnetOrderProcessing.Repositories;
 public class InMemoryOrderRepository : IOrderRepository
 {
     private readonly ConcurrentDictionary<string, Order> _store = new();
+    private readonly ConcurrentDictionary<string, List<Payment>> _payments = new();
 
     public IEnumerable<Order> List(string? status = null)
     {
@@ -19,4 +20,19 @@ public class InMemoryOrderRepository : IOrderRepository
     public void Save(Order order) => _store[order.Id] = order;
 
     public void Update(Order order) => _store[order.Id] = order;
+
+    public Payment SavePayment(Payment payment)
+    {
+        if (!_payments.ContainsKey(payment.OrderId))
+        {
+            _payments[payment.OrderId] = new List<Payment>();
+        }
+        _payments[payment.OrderId].Add(payment);
+        return payment;
+    }
+
+    public IEnumerable<Payment> GetPayments(string orderId)
+    {
+        return _payments.TryGetValue(orderId, out var payments) ? payments : new List<Payment>();
+    }
 }

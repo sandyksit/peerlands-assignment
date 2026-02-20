@@ -10,4 +10,6 @@ public interface IOrderService
     Order UpdateStatus(string id, string status);
     Order Cancel(string id);
     IEnumerable<Order> TransitionPendingToProcessing();
+    Payment AddPayment(string orderId, PaymentCreateDto dto);
+    IEnumerable<Payment> GetPayments(string orderId);
 }
